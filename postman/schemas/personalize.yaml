@@ -194,6 +194,9 @@ components:
           type: string
           description: 'Date when the report metadata is modified.'
           format: date
+        isArchived:
+          type: boolean
+          description: 'Flag to indicate if the report is archived.'
         isFavorites:
           type: array
           description: 'Indicates if the report is in the favorite list per user'
