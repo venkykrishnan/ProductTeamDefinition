@@ -208,6 +208,19 @@ components:
                   userId:
                       type: string
                       format: email
+        sharedWith:
+            description: '
+            Identifies the sharing details of this report. Its either shared with All in the org OR No one (private) OR
+            the list of ids. 
+            '
+            oneOf:
+                - type: string
+                  enum: [all, none]
+                - type: array
+                  description: 'list of ids that this owner has shared this report with.'
+                  items:
+                      type: string
+                      format: email
         reportConfig:
           type: array
           description: '
