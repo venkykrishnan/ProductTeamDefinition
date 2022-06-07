@@ -1,0 +1,272 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Personalization API'
+  license:
+    name: MIT
+servers:
+  - url: 'localhost:3000'
+paths:
+  /report:
+    get:
+      summary: 'Returns a list of reports'
+      description: 'Returns the metadata of all the reports for this customer'
+      operationId: getReportList
+      tags:
+        - report
+      responses:
+        '200':
+          description: 'List of all reports'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportList'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: 'Adds a new report entry'
+      description: '
+      Adds a new report metadata in the repository. It also links the new report
+      to its parent report. The main use case is the user creating a filter 
+      and persisting the report by giving it a name. This new report is basically the
+      parent report along with filters.
+       '
+      operationId: postReport
+      tags:
+        - report
+      requestBody:
+          description: a JSON object containing report information
+          content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/ReportWithoutId'
+      responses:
+        '200':
+          description: 'Added report Successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportId'
+            text/plain:
+              schema:
+                  type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /report/{id}:
+    get:
+      summary: 'Returns details about a particular report'
+      description: 'This call returns the metadata that describes the report identified by its id'
+      operationId: getReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      responses:
+        '200':
+          description: 'Details about a report by ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: 'Updates a report'
+      description: 'Updates the metadata of the report'
+      operationId: putReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      requestBody:
+          description: a JSON object containing report modifications
+          content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/ReportModifiable'
+      responses:
+        '200':
+          description: 'returns the updated report'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: 'Deletes a report by id'
+      description: '
+      Deletes the (metadata) of the report. 
+      Reports can be deleted only if they are personal and by the owner.
+      '
+      operationId: deleteReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      responses:
+        '204':
+          description: 'Successfully deleted the report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    OptionReport:
+      oneOf:
+        - $ref: '#/components/schemas/Report'
+        - type: array
+          items: 
+            $ref: '#/components/schemas/Report'
+    ReportList:
+      type: array
+      items:
+          $ref: '#/components/schemas/Report'
+    ReportId:
+        type: object
+        properties:
+         id:
+             type: integer
+             format: int32
+    Report:
+      allOf:
+        - $ref: '#/components/schemas/ReportId'
+        - $ref: '#/components/schemas/ReportWithoutId'
+    ReportWithoutId:
+      allOf:
+        - $ref: '#/components/schemas/ReportModifiable'              
+        - $ref: '#/components/schemas/ReportNonModifiable'              
+    ReportModifiable:
+      type: object
+      required:
+        - name
+        - editedOn
+        - reportConfig
+      properties:
+        name:
+          type: string
+          description: 'The name of the report.'
+        tags:
+          type: array
+          items:
+              type: string
+              description: 'list of tags that can used for filtering reports'
+        editedOn:
+          type: string
+          description: 'Date when the report metadata is modified.'
+          format: date
+        isFavorites:
+          type: array
+          description: 'Indicates if the report is in the favorite list per user'
+          items:
+              type: object
+              properties:
+                  isFavorite:
+                      type: boolean
+                  userId:
+                      type: string
+                      format: email
+        reportConfig:
+          type: array
+          description: '
+          Lists the filter paramaters for this report.
+          Each array consists of the dimension name (ex: Department) along with
+          a list of filter values (ex: Sales, Marketing) 
+          '
+          items:
+              type: object
+              properties:
+                  dimension:
+                      type: string
+                  values:
+                      type: array
+                      items:
+                          type: string
+    ReportNonModifiable:
+      type: object
+      required:
+        - owner
+        - reportType
+        - createdOn
+        - parent
+        - baseUrl
+      properties:
+        owner:
+          type: string
+          description: 'The report owner.'
+          format: email
+        reportType:
+          type: string
+          description: 'Indicates if its a standard, custom or personalized report.'
+          enum: [stratify, custom, personal]
+        createdOn:
+          type: string
+          description: 'The date this report was created.'
+          format: date
+        parent:
+          type: integer
+          description: 'The id of the parent report (for personal reports).'
+          format: int32
+        baseUrl:
+          type: string
+          description: '
+          The url for the actual underlying report. 
+          The url is constructed based on this url along witht reportConfig.
+          '
+          format: uri
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+security:
+  - BasicAuth: []
