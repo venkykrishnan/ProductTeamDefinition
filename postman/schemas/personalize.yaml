@@ -197,9 +197,21 @@ components:
         isArchived:
           type: boolean
           description: 'Flag to indicate if the report is archived.'
-        isHomes:
+        isEnabledList:
           type: array
-          description: 'Indicates if the report is the home report. It is per user'
+          description: 'Indicates if the report is hidden for a user.'
+          items:
+              type: object
+              properties:
+                  isEnabled:
+                      type: boolean
+                      description: 'A user can set this report to be hidden.'
+                  userId:
+                      type: string
+                      format: email        
+        isHomeList:
+          type: array
+          description: 'Indicates if the report is the home report. It is a boolean per user'
           items:
               type: object
               properties:
@@ -209,7 +221,7 @@ components:
                   userId:
                       type: string
                       format: email        
-        isFavorites:
+        isFavoriteList:
           type: array
           description: 'Indicates if the report is a favorite. It is per user'
           items:
