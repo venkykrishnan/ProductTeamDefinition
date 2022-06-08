@@ -197,9 +197,21 @@ components:
         isArchived:
           type: boolean
           description: 'Flag to indicate if the report is archived.'
+        isHomes:
+          type: array
+          description: 'Indicates if the report is the home report. It is per user'
+          items:
+              type: object
+              properties:
+                  isHome:
+                      type: boolean
+                      description: 'There can be only one Home Page per user.'
+                  userId:
+                      type: string
+                      format: email        
         isFavorites:
           type: array
-          description: 'Indicates if the report is in the favorite list per user'
+          description: 'Indicates if the report is a favorite. It is per user'
           items:
               type: object
               properties:
@@ -243,6 +255,7 @@ components:
         - owner
         - reportType
         - createdOn
+        - domain
         - parent
         - baseUrl
       properties:
@@ -254,6 +267,10 @@ components:
           type: string
           description: 'Indicates if its a standard, custom or personalized report.'
           enum: [stratify, custom, personal]
+        domain:
+          type: string
+          description: 'Indicates domain of the report.'
+          enum: [Finance, Workforce, Sales]
         createdOn:
           type: string
           description: 'The date this report was created.'
