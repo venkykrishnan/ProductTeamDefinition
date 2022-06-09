@@ -1,0 +1,528 @@
+openapi: 3.0.0
+info:
+  version: '0.1.0'
+  title: 'API Definitions for Stratify'
+  license:
+    name: MIT
+servers:
+  - url: 'localhost:3000'
+paths:
+  /report:
+    get:
+      summary: 'Returns a list of reports'
+      description: 'Returns the metadata of all the reports for this customer'
+      operationId: getReportList
+      tags:
+        - report
+      responses:
+        '200':
+          description: 'List of all reports'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportList'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: 'Adds a new report entry'
+      description: '
+      Adds a new report metadata in the repository. It also links the new report
+      to its parent report. The main use case is the user creating a filter 
+      and persisting the report by giving it a name. This new report is basically the
+      parent report along with filters.
+       '
+      operationId: postReport
+      tags:
+        - report
+      requestBody:
+          description: a JSON object containing report information
+          content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/ReportWithoutId'
+      responses:
+        '200':
+          description: 'Added report Successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportId'
+            text/plain:
+              schema:
+                  type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /report/{id}:
+    get:
+      summary: 'Returns details about a particular report'
+      description: 'This call returns the metadata that describes the report identified by its id'
+      operationId: getReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      responses:
+        '200':
+          description: 'Details about a report by ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: 'Updates a report'
+      description: 'Updates the metadata of the report'
+      operationId: putReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      requestBody:
+          description: a JSON object containing report modifications
+          content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/ReportModifiable'
+      responses:
+        '200':
+          description: 'returns the updated report'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: 'Deletes a report by id'
+      description: '
+      Deletes the (metadata) of the report. 
+      Reports can be deleted only if they are personal and by the owner.
+      '
+      operationId: deleteReportById
+      tags:
+        - report
+      parameters:
+        - name: id
+          in: path
+          description: ID of the report
+          required: true
+          schema:
+            $ref: '#/components/schemas/ReportId'
+      responses:
+        '204':
+          description: 'Successfully deleted the report'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /taskwf:
+    get:
+      summary: 'Returns a list of task worflows'
+      description: '
+      A task workflow describes the steps that constitute a task.
+      This method returns the list of task workflows.
+      '
+      operationId: listTaskWf
+      tags:
+        - taskwf
+      responses:
+        '200':
+          description: 'List of task worflows'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWfList'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: 'Add new task worflow'
+      operationId: addTaskWf
+      tags:
+        - taskwf
+      responses:
+        '200':
+          description: 'List of task worflows'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWfWithoutId'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /taskwf/{id}:
+    get:
+      summary: 'Returns details about a particular task workflow'
+      description: 'This call returns the metadata that describes the task workflow identified by its id'
+      operationId: getTaskWfById
+      tags:
+        - taskwf
+      parameters:
+        - name: id
+          in: path
+          description: ID of the task workflow
+          required: true
+          schema:
+            $ref: '#/components/schemas/TaskWfId'
+      responses:
+        '200':
+          description: 'Details about a task workflow by ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWf'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: 'Updates a task workflow'
+      description: 'Updates the metadata of the task workflow'
+      operationId: putTaskWfById
+      tags:
+        - taskwf
+      parameters:
+        - name: id
+          in: path
+          description: ID of the task workflow
+          required: true
+          schema:
+            $ref: '#/components/schemas/TaskWfId'
+      requestBody:
+          description: a JSON object containing task workflow modifications
+          content:
+              application/json:
+                  schema:
+                    $ref: '#/components/schemas/TaskWfWithoutId'
+      responses:
+        '200':
+          description: 'returns the updated task workflow'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWf'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: 'Deletes a task workflow by id'
+      description: '
+      Deletes the task workflow. 
+      '
+      operationId: deleteTaskWfById
+      tags:
+        - taskwf
+      parameters:
+        - name: id
+          in: path
+          description: ID of the task workflow
+          required: true
+          schema:
+            $ref: '#/components/schemas/TaskWfId'
+      responses:
+        '204':
+          description: 'Successfully deleted the task workflow'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    OptionReport:
+      oneOf:
+        - $ref: '#/components/schemas/Report'
+        - type: array
+          items: 
+            $ref: '#/components/schemas/Report'
+    ReportList:
+      type: array
+      items:
+          $ref: '#/components/schemas/Report'
+    ReportId:
+        type: object
+        properties:
+         id:
+             type: integer
+             format: int32
+    Report:
+      allOf:
+        - $ref: '#/components/schemas/ReportId'
+        - $ref: '#/components/schemas/ReportWithoutId'
+    ReportWithoutId:
+      allOf:
+        - $ref: '#/components/schemas/ReportModifiable'              
+        - $ref: '#/components/schemas/ReportNonModifiable'              
+    ReportModifiable:
+      type: object
+      required:
+        - name
+        - editedOn
+        - reportConfig
+      properties:
+        name:
+          type: string
+          description: 'The name of the report.'
+        tags:
+          type: array
+          items:
+              type: string
+              description: 'list of tags that can used for filtering reports'
+        editedOn:
+          type: string
+          description: 'Date when the report metadata is modified.'
+          format: date
+        isArchived:
+          type: boolean
+          description: 'Flag to indicate if the report is archived.'
+        isEnabledList:
+          type: array
+          description: 'Indicates if the report is hidden for a user.'
+          items:
+              type: object
+              properties:
+                  isEnabled:
+                      type: boolean
+                      description: 'A user can set this report to be hidden.'
+                  userId:
+                      type: string
+                      format: email        
+        isHomeList:
+          type: array
+          description: 'Indicates if the report is the home report. It is a boolean per user'
+          items:
+              type: object
+              properties:
+                  isHome:
+                      type: boolean
+                      description: 'There can be only one Home Page per user.'
+                  userId:
+                      type: string
+                      format: email        
+        isFavoriteList:
+          type: array
+          description: 'Indicates if the report is a favorite. It is per user'
+          items:
+              type: object
+              properties:
+                  isFavorite:
+                      type: boolean
+                  userId:
+                      type: string
+                      format: email
+        sharedWith:
+            description: '
+            Identifies the sharing details of this report. Its either shared with All in the org OR No one (private) OR
+            the list of ids. 
+            '
+            oneOf:
+                - type: string
+                  enum: [all, none]
+                - type: array
+                  description: 'list of ids that this owner has shared this report with.'
+                  items:
+                      type: string
+                      format: email
+        reportConfig:
+          type: array
+          description: '
+          Lists the filter paramaters for this report.
+          Each array consists of the dimension name (ex: Department) along with
+          a list of filter values (ex: Sales, Marketing) 
+          '
+          items:
+              type: object
+              properties:
+                  dimension:
+                      type: string
+                  values:
+                      type: array
+                      items:
+                          type: string
+    ReportNonModifiable:
+      type: object
+      required:
+        - owner
+        - reportType
+        - createdOn
+        - domain
+        - parent
+        - baseUrl
+      properties:
+        owner:
+          type: string
+          description: 'The report owner.'
+          format: email
+        reportType:
+          type: string
+          description: 'Indicates if its a standard, custom or personalized report.'
+          enum: [stratify, custom, personal]
+        domain:
+          type: string
+          description: 'Indicates domain of the report.'
+          enum: [Finance, Workforce, Sales]
+        createdOn:
+          type: string
+          description: 'The date this report was created.'
+          format: date
+        parent:
+          type: integer
+          description: 'The id of the parent report (for personal reports).'
+          format: int32
+        baseUrl:
+          type: string
+          description: '
+          The url for the actual underlying report. 
+          The url is constructed based on this url along witht reportConfig.
+          '
+          format: uri
+    OptionTaskWfList:
+      oneOf:
+        - $ref: '#/components/schemas/TaskWf'
+        - $ref: '#/components/schemas/TaskWfList'
+    TaskWfList:
+      type: array
+      items:
+          $ref: '#/components/schemas/TaskWf'
+     
+    TaskWfId:
+        type: object
+        properties:
+            id:
+                 type: integer
+                 format: int32
+    TaskWf:
+      allOf:
+        - $ref: '#/components/schemas/TaskWfId'
+        - $ref: '#/components/schemas/TaskWfWithoutId'
+    TaskWfWithoutId:
+      type: object
+      required:
+        - name
+        - description
+        - domain
+        - version
+        - steps
+        - isEnabled
+      properties:
+        name:
+            type: string
+            description: 'The name of the task workflow'
+        description:
+            type: string
+            description: 'A description of the task workflow'
+        domain:
+            type: string
+            enum: [finance, workforce, sales]
+        version:
+            type: integer
+            description: 'The task workflow version'
+            minimum: 1
+            maximum: 20
+        steps:
+            type: array
+            description: 'Steps holds the workflow steps of this task'
+            items:
+                type: object
+                properties:
+                    number:
+                        type: integer
+                    name:
+                        type: string
+                    baseUrl:
+                        type: string
+                        format: uri
+                    stepInitiationDimensions:
+                        type: array
+                        description: '
+                        Lists the filter dimensions for this step. When this task gets instantiated, the task instance 
+                        gets dimension values assigned by the task initiator. 
+                        '
+                        items:
+                            type: string
+                            description: 'The dimension'
+                    nextList:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                action:
+                                    type: string
+                                nextStep:
+                                    type: string
+        isEnabled:
+            type: boolean
+            default: true
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+security:
+  - BasicAuth: []
